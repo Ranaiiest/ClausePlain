@@ -412,4 +412,39 @@ def main() -> None:
         page_ask()
 
 
-main()
+if __name__ == "__main__":
+    main()
+
+
+# WSGI application for Vercel deployment
+def app(environ, start_response):
+    """WSGI application entry point for Vercel."""
+    import subprocess
+    import os
+    
+    # Check if we're in a Vercel environment
+    if os.environ.get("VERCEL"):
+        # For Vercel, run Streamlit in headless mode
+        port = os.environ.get("PORT", "8000")
+        process = subprocess.Popen(
+            [
+                "streamlit",
+                "run",
+                __file__,
+                "--server.port",
+                port,
+                "--server.address",
+                "0.0.0.0",
+                "--server.headless",
+                "true",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        process.wait()
+    
+    # Fallback response
+    status = "200 OK"
+    headers = [("Content-type", "text/plain")]
+    start_response(status, headers)
+    return [b"ClausePlain is running"]
