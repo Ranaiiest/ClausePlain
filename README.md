@@ -40,6 +40,10 @@ ClausePlain automatically parses legal text to surface the most critical informa
   - *Note: Llama 3.x IDs on Groq are often restricted to enterprise.*
 
 
+  ## 🌐 Live Demo
+[Click here to view the app](https://clauseplain-bivsmyrudmggzmsq5bwkjm.streamlit.app/)
+
+
 
 ## ⚖️ File Limits & Safeguards
 
