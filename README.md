@@ -8,7 +8,7 @@ Upload a **contract, offer letter, NDA, court paper, or similar legal file** and
 
 ### 📸 See it in action
 
-![ClausePlain Briefing View](/Users/priyabrata.senapati/Desktop/Desktop/sql_py_proj/Projects/contract-intelligence-platform/src/assets/sc1.png)![ClausePlain Chat Q&A View](/Users/priyabrata.senapati/Desktop/Desktop/sql_py_proj/Projects/contract-intelligence-platform/src/assets/sc2.png)
+![ClausePlain Briefing View](src/assets/sc1.png)![ClausePlain Chat Q&A View](src/assets/sc2.png)
 
 *Left: Automated plain-English briefing. Right: Document-specific Q&A.*
 
