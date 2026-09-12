@@ -1,0 +1,15 @@
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = true
+# Streamlit's source watcher walks `transformers` and lazy-imports hundreds of
+# vision processors (`torchvision`). This app only uses text embeddings — disable
+# watching so those ModuleNotFoundError dumps do not flood the terminal.
+fileWatcherType = "none"
+folderWatchBlacklist = [
+    ".venv",
+    "**/site-packages",
+    "data",
+    "logs",
+]
