@@ -1,8 +1,3 @@
-"""
-ClausePlain — upload a legal document, get a plain-English briefing, then ask questions.
-
-    streamlit run app.py
-"""
 from __future__ import annotations
 
 import html
@@ -65,6 +60,11 @@ def _init_state() -> None:
     st.session_state.setdefault("analyze_seconds", 0.0)
     st.session_state.setdefault("rejected", False)
     st.session_state.setdefault("rejection_reason", "")
+    st.session_state.setdefault("nav", "Upload")
+    # Apply deferred page switch BEFORE the radio widget binds to key="nav".
+    pending = st.session_state.pop("pending_nav", None)
+    if pending in ("Upload", "Briefing", "Ask"):
+        st.session_state.nav = pending
 
 
 def _analysis() -> DocumentAnalysis | None:
@@ -82,7 +82,7 @@ def _clear_session() -> None:
     st.session_state.word_count = 0
     st.session_state.rejected = False
     st.session_state.rejection_reason = ""
-    st.session_state.nav = "Upload"
+    st.session_state.pending_nav = "Upload"
 
 
 def _render_sidebar() -> None:
@@ -120,12 +120,12 @@ def _hero() -> None:
     st.markdown(
         """
         <div class="hero">
-          <h1>Read any legal document in plain English</h1>
-          <p>
+          <div class="hero-title" style="color:#f6f1e8">Read any legal document in plain English</div>
+          <div class="hero-sub" style="color:#e7ddd0">
             Upload a contract, offer letter, NDA, or court paper. ClausePlain finds the
             important numbers, deadlines, obligations, and conditions, explains the jargon,
             then lets you ask questions grounded in your file.
-          </p>
+          </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -153,12 +153,13 @@ def _run_upload(uploaded) -> None:
         return
 
     suffix = Path(uploaded.name).suffix.lower() or ".pdf"
+    safe_stem = Path(uploaded.name).stem.replace(" ", "_")[:80] or "document"
     status = st.status("Reading your document…", expanded=True)
     tmp_path = None
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-            tmp.write(uploaded.getbuffer())
-            tmp_path = tmp.name
+        tmp_dir = tempfile.mkdtemp(prefix="clauseplain_")
+        tmp_path = str(Path(tmp_dir) / f"{safe_stem}{suffix}")
+        Path(tmp_path).write_bytes(uploaded.getbuffer())
 
         workspace = get_workspace()
         status.write("Checking that this is a legal document…")
@@ -183,7 +184,8 @@ def _run_upload(uploaded) -> None:
         st.session_state.chat = []
         st.session_state.model_used = result.model_name
         st.session_state.analyze_seconds = result.latency_seconds
-        st.session_state.nav = "Briefing"
+        # Do not assign st.session_state.nav here — the radio widget already owns it.
+        st.session_state.pending_nav = "Briefing"
         status.update(label="Briefing ready", state="complete")
         st.rerun()
     except NotLegalDocumentError as exc:
@@ -200,7 +202,13 @@ def _run_upload(uploaded) -> None:
         st.caption("Use a text-based PDF (not a scanned image) or a .txt file.")
     finally:
         if tmp_path:
-            Path(tmp_path).unlink(missing_ok=True)
+            p = Path(tmp_path)
+            p.unlink(missing_ok=True)
+            if p.parent.exists() and p.parent.name.startswith("clauseplain_"):
+                try:
+                    p.parent.rmdir()
+                except OSError:
+                    pass
 
 
 def page_upload() -> None:

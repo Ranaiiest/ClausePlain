@@ -41,28 +41,22 @@ secrets.toml
 logs/
 *.log
 
-# Local LLM / model artifacts (never commit weights)
+# Local model / cache artifacts
 *.gguf
 *.bin
 *.safetensors
 models/
-
-# Hugging Face / sentence-transformers caches if created in-repo
 .cache/
 huggingface/
 
-# Generated SSL bundle and vector store
+# Runtime vector store + generated SSL bundle
 data/processed/*
 !data/processed/.gitkeep
 
-# Runtime outputs
-data/exports/
-data/demo/
-data/raw/*
-!data/raw/.gitkeep
-
-# Uploaded / temp contracts
+# Uploaded / temp files
 tmp/
 temp/
 *.tmp
+
+# Local product docs (not committed)
 docs/

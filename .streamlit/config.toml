@@ -13,3 +13,12 @@ folderWatchBlacklist = [
     "data",
     "logs",
 ]
+
+# Force light theme so Streamlit does not paint white text on our cream paper.
+[theme]
+base = "light"
+primaryColor = "#c45c26"
+backgroundColor = "#f6f1e8"
+secondaryBackgroundColor = "#fffcf7"
+textColor = "#1b2430"
+font = "sans serif"
